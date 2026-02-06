@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dragon School</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <nav>
+      <div>
+        <ul>
+          <li><a href="home">Home</a></li>
+          <li><a href="dragon" class="active">Dragon School</a></li>
+          <li><a href="phoenix">Phoenix School</a></li>
+          <li><a href="owl">Owl School</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <section class="title">
+        <h1 id="job-title">Job Title</h1>
+        <p id="job-description">Job Description</p>
+      </section>
+
+      <section class="summary">
+        <h2>Company Detail</h2>
+        <p id="company-name">Company Name</p>
+        <p id="company-email">Email:</p>
+        <p id="company-location">Location:</p>
+        <p id="deadline">Deadline:</p>
+      </section>
+
+      <section class="apply-section">
+        <button id="apply-btn">Apply for this Job</button>
+        <p id="apply-message"></p>
+      </section>
+    </main>
+
+    <a href="#" class="scroll-top">↑</a>
+
+    <footer>
+      <p>© 2025 Feen. All rights reserved.</p>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        const jobId = window.location.pathname.split("/").pop();
+
+        try {
+          const jobResponse = await fetch(`/api/jobdetail/${jobId}`);
+          const data = await jobResponse.json();
+
+          if (!data.job || !data.company) {
+            document.getElementById("job-title").textContent = "Job not found";
+            return;
+          }
+
+          const { job, company } = data;
+
+          document.getElementById("job-title").textContent = job.jobTitle;
+          document.getElementById("job-description").textContent =
+            job.jobDescription;
+
+          document.getElementById("company-name").textContent =
+            company.companyName;
+          document.getElementById(
+            "company-email"
+          ).textContent = `Email: ${company.email}`;
+          document.getElementById(
+            "company-location"
+          ).textContent = `Location: ${company.location}`;
+          document.getElementById(
+            "deadline"
+          ).textContent = `Deadline: ${job.deadline}`;
+
+          document
+            .getElementById("apply-btn")
+            .addEventListener("click", async () => {
+              try {
+                // hard code, will change later after finish login system
+                // 12:20 : i will never finish it in time T_T
+                const candidateId = 30000001;
+                const applyResponse = await fetch("/api/applyjob", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ jobId: job.jobId, candidateId }),
+                });
+                const applyResult = await applyResponse.json();
+                document.getElementById("apply-message").textContent =
+                  applyResult.message;
+              } catch (err) {
+                console.error(err);
+                document.getElementById("apply-message").textContent =
+                  "Error applying for job.";
+              }
+            });
+        } catch (err) {
+          console.error(err);
+          document.getElementById("job-title").textContent =
+            "Error loading job details";
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dragon School</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <nav>
+      <div>
+        <ul>
+          <li><a href="home">Home</a></li>
+          <li><a href="dragon" class="active">Dragon School</a></li>
+          <li><a href="phoenix">Phoenix School</a></li>
+          <li><a href="owl">Owl School</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <section class="title">
+        <h1>Candidate Detail</h1>
+        <p>Learn all about dragon care and maintenance.</p>
+      </section>
+
+      <section class="summary">
+        <h2>Candidate Detail</h2>
+        <p>First Name</p>
+        <p>Last Name</p>
+        <p>Email</p>
+      </section>
+
+      <section class="candidate-table">
+        <h2>Application List</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>JobID</th>
+              <th>Job Position</th>
+              <th>Company Name</th>
+              <th>Apply Date</th>
+            </tr>
+          </thead>
+          <tbody id="candidate-list"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <a href="#" class="scroll-top">↑</a>
+
+    <footer>
+      <p>© 2025 Feen. All rights reserved.</p>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const candidateId = window.location.pathname.split("/").pop();
+
+        fetch(`/api/candidatedetail/${candidateId}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const { candidate, applications } = data;
+            const summarySection = document.querySelector(".summary");
+            summarySection.innerHTML = `
+          <h2>Candidate Detail</h2>
+          <p>First Name: ${candidate.firstName}</p>
+          <p>Last Name: ${candidate.lastName}</p>
+          <p>Email: ${candidate.email}</p>
+        `;
+
+            // Sort by Job Pos, Company Name, Date
+            const sortedApplications = applications.sort((a, b) => {
+              const jobCmp = (a.jobTitle || "").localeCompare(b.jobTitle || "");
+              if (jobCmp !== 0) return jobCmp;
+              const companyCmp = (a.companyName || "").localeCompare(
+                b.companyName || ""
+              );
+              if (companyCmp !== 0) return companyCmp;
+              return new Date(a.applyDate) - new Date(b.applyDate);
+            });
+            const candidateList = document.getElementById("candidate-list");
+            if (sortedApplications.length === 0) {
+              const row = document.createElement("tr");
+              row.innerHTML = `<td colspan="4" style="text-align:center;">No applications found</td>`;
+              candidateList.appendChild(row);
+            } else {
+              sortedApplications.forEach((app) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+              <td>${app.jobId}</td>
+              <td>${app.jobTitle || "N/A"}</td>
+              <td>${app.companyName || "N/A"}</td>
+              <td>${app.applyDate}</td>
+            `;
+                candidateList.appendChild(row);
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching candidate details:", error);
+          });
+      });
+    </script>
+  </body>
+</html>

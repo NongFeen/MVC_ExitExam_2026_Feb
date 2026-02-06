@@ -1,0 +1,72 @@
+[
+  {
+    "jobId": 20000001,
+    "jobTitle": "Software Engineer",
+    "jobDescription": "Develop and maintain web applications.",
+    "companyId": 10000001,
+    "deadline": "2025-10-31"
+  },
+  {
+    "jobId": 20000002,
+    "jobTitle": "UI/UX Designer",
+    "jobDescription": "Design user-friendly interfaces.",
+    "companyId": 10000002,
+    "deadline": "2025-11-15"
+  },
+  {
+    "jobId": 20000003,
+    "jobTitle": "Backend Developer",
+    "jobDescription": "Build and maintain server-side applications.",
+    "companyId": 10000003,
+    "deadline": "2025-10-25"
+  },
+  {
+    "jobId": 20000004,
+    "jobTitle": "Frontend Developer",
+    "jobDescription": "Implement visual elements and UI components.",
+    "companyId": 10000002,
+    "deadline": "2025-11-05"
+  },
+  {
+    "jobId": 20000005,
+    "jobTitle": "Project Manager",
+    "jobDescription": "Oversee project planning and execution.",
+    "companyId": 10000001,
+    "deadline": "2025-11-10"
+  },
+  {
+    "jobId": 20000006,
+    "jobTitle": "Data Analyst",
+    "jobDescription": "Analyze data and provide actionable insights.",
+    "companyId": 10000003,
+    "deadline": "2025-10-28"
+  },
+  {
+    "jobId": 20000007,
+    "jobTitle": "QA Engineer",
+    "jobDescription": "Test software for bugs and issues.",
+    "companyId": 10000002,
+    "deadline": "2025-11-12"
+  },
+  {
+    "jobId": 20000008,
+    "jobTitle": "DevOps Engineer",
+    "jobDescription": "Manage infrastructure and deployment pipelines.",
+    "companyId": 10000001,
+    "deadline": "2025-11-20"
+  },
+  {
+    "jobId": 20000009,
+    "jobTitle": "Mobile Developer",
+    "jobDescription": "Develop mobile applications for iOS and Android.",
+    "companyId": 10000003,
+    "deadline": "2025-11-08"
+  },
+  {
+    "jobId": 20000010,
+    "jobTitle": "Technical Writer",
+    "jobDescription": "Create documentation for software products.",
+    "companyId": 10000002,
+    "deadline": "2025-11-18"
+  }
+]

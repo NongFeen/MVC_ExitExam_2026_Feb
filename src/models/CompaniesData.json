@@ -1,0 +1,20 @@
+[
+  {
+    "companyId": 10000001,
+    "companyName": "Testing item Inc.",
+    "email": "contact@test.com",
+    "location": "Bangkok"
+  },
+  {
+    "companyId": 10000002,
+    "companyName": "FutureWorks Inc.",
+    "email": "hr@futureworks.com",
+    "location": "Chiang Mai"
+  },
+  {
+    "companyId": 10000003,
+    "companyName": "Plague Inc.",
+    "email": "hr@Plague.com",
+    "location": "Bangkok"
+  }
+]

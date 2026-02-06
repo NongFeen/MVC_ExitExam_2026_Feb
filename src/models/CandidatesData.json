@@ -1,0 +1,62 @@
+[
+  {
+    "candidateId": 30000001,
+    "firstName": "Alice",
+    "lastName": "Wong",
+    "email": "alice.wong@gmail.com"
+  },
+  {
+    "candidateId": 30000002,
+    "firstName": "Somchai",
+    "lastName": "Prasert",
+    "email": "somchai.p@gmail.com"
+  },
+  {
+    "candidateId": 30000003,
+    "firstName": "Ton",
+    "lastName": "Roblox",
+    "email": "Ton.rb@gmail.com"
+  },
+  {
+    "candidateId": 30000004,
+    "firstName": "Oat",
+    "lastName": "kub",
+    "email": "oatkub@gmail.com"
+  },
+  {
+    "candidateId": 30000005,
+    "firstName": "Alex",
+    "lastName": "Steave",
+    "email": "alex.s@gmail.com"
+  },
+  {
+    "candidateId": 30000006,
+    "firstName": "Seal",
+    "lastName": "Flex",
+    "email": "flexdoseal@gmail.com"
+  },
+  {
+    "candidateId": 30000007,
+    "firstName": "Feen",
+    "lastName": "Goat",
+    "email": "feengoat@gmail.com"
+  },
+  {
+    "candidateId": 30000008,
+    "firstName": "Orange",
+    "lastName": "Issom",
+    "email": "somisorange@gmail.com"
+  },
+  {
+    "candidateId": 30000009,
+    "firstName": "Kai",
+    "lastName": "Micro",
+    "email": "microwavechiken@gmail.com"
+  },
+  {
+    "candidateId": 30000010,
+    "firstName": "Sladar",
+    "lastName": "Luna",
+    "email": "sladardeliv@gmail.com"
+  }
+]

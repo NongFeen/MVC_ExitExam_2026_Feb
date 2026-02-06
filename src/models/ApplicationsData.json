@@ -1,0 +1,17 @@
+[
+  {
+    "jobId": 20000001,
+    "candidateId": 30000001,
+    "applyDate": "2025-09-20"
+  },
+  {
+    "jobId": 20000002,
+    "candidateId": 30000001,
+    "applyDate": "2025-09-20"
+  },
+  {
+    "jobId": 20000002,
+    "candidateId": 30000002,
+    "applyDate": "2025-09-21"
+  }
+]
