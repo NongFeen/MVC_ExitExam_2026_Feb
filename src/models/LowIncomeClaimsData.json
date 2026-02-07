@@ -1,0 +1,14 @@
+[
+  {
+    "claimId": "70348425",
+    "claimantId": "CLM001",
+    "submissionDate": "2026-02-07",
+    "claimStatus": "approved"
+  },
+  {
+    "claimId": "92661592",
+    "claimantId": "CLM001",
+    "submissionDate": "2026-02-07",
+    "claimStatus": "pending"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "policyId": "POL001",
+    "maxAmount": 100000,
+    "incomeCondition": "general"
+  },
+  {
+    "policyId": "POL002",
+    "maxAmount": 150000,
+    "incomeCondition": "low-income"
+  },
+  {
+    "policyId": "POL003",
+    "maxAmount": 50000,
+    "incomeCondition": "high-income"
+  }
+]

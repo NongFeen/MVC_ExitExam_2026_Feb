@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยื่นคำขอเยียวยา - ระบบการเยียวยา</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    
+</head>
+<body>
+    <nav>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <ul style="margin: 0;">
+                <li><a href="/home">หน้าแรก</a></li>
+                <li><a href="/compensationRequestList" id="listLink" style="display: none;">รายการคำขอเยียวยา</a></li>
+            </ul>
+            <div class="user-info" id="userInfo">
+                <span class="user-name" id="userName">Loading...</span>
+                <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="title">
+            <h1>ยื่นคำขอเยียวยา</h1>
+        </div>
+
+        <!-- National ID Search -->
+        <div id="step1-search" style="display: block;">
+            <div class="section-title">ค้นหาด้วยบัตรประชาชน</div>
+            <div class="form-group">
+                <label for="nationalId" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">เลขบัตรประชาชน *</label>
+                <input type="text" id="nationalId" name="nationalId" placeholder="เช่น 1234567890123" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <div id="searchError" class="error-msg" style="display: none;"></div>
+            </div>
+            <button onclick="searchClaimant()" class="btn-primary">ค้นหา</button>
+        </div>
+
+        <!-- Existing Claimant Info -->
+        <div id="step2-existing" style="display: none;">
+            <div class="section-title">ข้อมูลผู้ขอเยียวยา</div>
+            <div class="feature-card">
+                <p><strong>ชื่อ:</strong> <span id="existingName"></span></p>
+                <p><strong>นามสกุล:</strong> <span id="existingLastName"></span></p>
+                <p><strong>วันเกิด:</strong> <span id="existingDOB"></span></p>
+                <p><strong>รายได้ต่อเดือน:</strong> <span id="existingIncome"></span> บาท</p>
+                <p><strong>ประเภท:</strong> <span id="existingType"></span></p>
+            </div>
+
+            <!-- Claims History -->
+            <div class="section-title" style="margin-top: 2rem;">รายการคำขอเยียวยา</div>
+            <div id="claimsListContainer">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
+                    <thead>
+                        <tr style="background-color: #34495e; color: white;">
+                            <th style="padding: 0.75rem; text-align: left; border: 1px solid #ddd;">รหัสคำขอ</th>
+                            <th style="padding: 0.75rem; text-align: left; border: 1px solid #ddd;">วันที่ยื่นคำขอ</th>
+                            <th style="padding: 0.75rem; text-align: left; border: 1px solid #ddd;">สถานะ</th>
+                            <th style="padding: 0.75rem; text-align: left; border: 1px solid #ddd;">เงินเยียวยา</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimsTableBody">
+                        <tr><td colspan="4" style="text-align: center; padding: 1rem; color: #7f8c8d;">ไม่พบข้อมูลคำขอ</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-title">สรุปการเยียวยา</div>
+            <div id="compensationSummaryContainer">
+                <p style="color: #7f8c8d; text-align: center;">ไม่พบข้อมูลการเยียวยา</p>
+            </div>
+
+            <div class="btn-group" style="margin-top: 2rem;">
+                <button onclick="goBackSearch()" class="btn-primary">ค้นหาใหม่</button>
+                <button onclick="showNewClaimForm()" class="btn-success">ยื่นคำขอเยียวยาใหม่</button>
+            </div>
+        </div>
+
+        <!-- if not found. do Claimant Registration -->
+        <div id="step2-register" style="display: none;">
+            <div class="section-title">ลงทะเบียนข้อมูลใหม่</div>
+            <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem;">
+                <p style="margin: 0; color: #856404;">เกิดข้อมูลไม่พบในระบบ โปรดข้อมูลให้ครบถ้วน</p>
+            </div>
+            <div class="form-group">
+                <label for="regFirstName">ชื่อ *</label>
+                <input type="text" id="regFirstName" name="regFirstName" placeholder="เช่น สมชาย">
+            </div>
+            <div class="form-group">
+                <label for="regLastName">นามสกุล *</label>
+                <input type="text" id="regLastName" name="regLastName" placeholder="เช่น ใจดี">
+            </div>
+            <div class="form-group">
+                <label for="regDOB">วันเกิด *</label>
+                <input type="date" id="regDOB" name="regDOB">
+            </div>
+            <div class="form-group">
+                <label for="regIncome">รายได้ต่อเดือน (บาท) *</label>
+                <input type="number" id="regIncome" name="regIncome" placeholder="เช่น 15000" min="0">
+            </div>
+            <div id="registerError" class="error-msg" style="display: none;"></div>
+            <div class="btn-group">
+                <button onclick="goBackSearch()" class="btn-primary">ย้อนกลับ</button>
+                <button onclick="registerNewClaimant()" class="btn-success">ลงทะเบียน</button>
+            </div>
+        </div>
+
+        <!--  Claim request Form -->
+        <form id="compensationForm" style="display: none;">
+            <div class="section-title"> ยื่นคำขอเยียวยา</div>
+            
+            <div class="feature-card" id="claimantInfo">
+                <p><strong>ชื่อ:</strong> <span id="claimantName"></span></p>
+                <p><strong>นามสกุล:</strong> <span id="claimantLastName"></span></p>
+                <p><strong>รายได้ต่อเดือน:</strong> <span id="claimantIncome"></span> บาท</p>
+                <p><strong>ประเภท:</strong> <span id="claimantType"></span></p>
+            </div>
+
+            <div class="form-group">
+                <label for="submissionDate">วันที่ยื่นคำขอ *</label>
+                <input type="date" id="submissionDate" name="submissionDate" required>
+            </div>
+
+            <div class="feature-card" id="compensationSection" style="display: none; background-color: #e8f5e9; border-left: 4px solid #2ecc71;">
+                <h3 style="color: #2ecc71;">เงินเยียวยาที่คำนวณได้</h3>
+                <p id="compensationAmount" style="font-size: 1.5rem; font-weight: bold; color: #27ae60;">ยังไม่มีการคำนวณ</p>
+                <p style="font-size: 0.9rem; color: #555; margin-top: 0.5rem;">
+                    <em id="compensationInfo"></em>
+                </p>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-success" style="width: 100%; margin-top: 1rem;">ยื่นคำขอเยียวยา</button>
+        </form>
+
+        <div id="successMsg" style="display: none; background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 1rem; border-radius: 4px; margin-top: 1.5rem;">
+            ยื่นคำขอเยียวยาเรียบร้อยแล้ว! รหัสคำขอของคุณ: <strong id="newClaimId"></strong>
+        </div>
+    </main>
+
+    <script>
+        let currentClaimant = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            setTodayDate();
+        });
+
+        // load current user
+        function loadCurrentUser() {
+            fetch('/api/auth/current')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('userInfo').classList.add('logged-in');
+                        document.getElementById('userName').textContent = `ผู้ใช้: ${data.user.name}`;
+                        if (data.user.role === 'admin') {
+                            document.getElementById('listLink').style.display = 'block';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error loading current user:', error));
+        }
+
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                fetch('/api/auth/logout', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/home';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.href = '/home';
+                });
+            }
+        }
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('submissionDate').value = today;
+        }
+
+        // Validate Thai ID
+        function isValidThaiID(id) {
+            const cleanId = id.replace(/[\s-]/g, '');
+            // 13 digit
+            if (!/^\d{13}$/.test(cleanId)) {
+                return false;
+            }
+            // checksum 
+            let sum = 0;
+            for (let i = 0; i < 12; i++) {
+                sum += parseInt(cleanId.charAt(i)) * (13 - i);
+            }
+            
+            const checkDigit = (11 - (sum % 11)) % 10;
+            return parseInt(cleanId.charAt(12)) === checkDigit;
+        }
+
+        function searchClaimant() {
+            const nationalId = document.getElementById('nationalId').value.trim();
+            
+            if (!nationalId) {
+                showError('searchError', 'กรุณากรอกเลขบัตรประชาชน');
+                return;
+            }
+
+            if (!isValidThaiID(nationalId)) {
+                showError('searchError', 'เลขบัตรประชาชนไม่ถูกต้อง');
+                return;
+            }
+
+            fetch(`/api/claimants/search/${nationalId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.found) {
+                        // Found existing claimant
+                        currentClaimant = data.data;
+                        displayExistingClaimant(data.data);
+                        showStep('step2-existing');
+                    } else {
+                        // Not found - show registration form
+                        showStep('step2-register');
+                        document.getElementById('nationalId').disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('searchError', 'เกิดข้อผิดพลาดในการค้นหา');
+                });
+        }
+
+        function displayExistingClaimant(claimant) {
+            document.getElementById('existingName').textContent = claimant.firstName;
+            document.getElementById('existingLastName').textContent = claimant.lastName;
+            document.getElementById('existingDOB').textContent = claimant.dateOfBirth || '-';
+            document.getElementById('existingIncome').textContent = claimant.monthlyIncome.toLocaleString('th-TH');
+            document.getElementById('existingType').textContent = translateClaimantType(claimant.claimantType);
+            
+            // Load claims and compensations
+            loadClaimsAndCompensations(claimant.claimantId);
+        }
+
+        function loadClaimsAndCompensations(claimantId) {
+            // Fetch claims
+            fetch(`/api/claims/claimant/${claimantId}`)
+                .then(response => response.json())
+                .then(claims => {
+                    displayClaimsList(claims);
+                })
+                .catch(error => {
+                    console.error('Error loading claims:', error);
+                    document.getElementById('claimsTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 1rem; color: #e74c3c;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+                });
+            
+            // feach compensations to find relevant ones
+            fetch('/api/compensations')
+                .then(response => response.json())
+                .then(allCompensations => {
+                    // fetch claims to match with compensations
+                    fetch(`/api/claims/claimant/${claimantId}`)
+                        .then(response => response.json())
+                        .then(claims => {
+                            displayCompensationSummary(claims, allCompensations, currentClaimant);
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading compensations:', error);
+                });
+        }
+
+        function displayClaimsList(claims) {
+            const tableBody = document.getElementById('claimsTableBody');
+            
+            if (!claims || claims.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 1rem; color: #7f8c8d;">ไม่พบข้อมูลคำขอ</td></tr>';
+                return;
+            }
+            
+            tableBody.innerHTML = claims.map(claim => {
+                const statusColor = claim.claimStatus === 'approved' ? '#27ae60' : claim.claimStatus === 'rejected' ? '#e74c3c' : '#f39c12';
+                const statusText = translateClaimStatus(claim.claimStatus);
+                
+                return `
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">${claim.claimId}</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">${new Date(claim.submissionDate).toLocaleDateString('th-TH')}</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd; color: ${statusColor}; font-weight: bold;">${statusText}</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;" id="comp-${claim.claimId}">-</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            //fetch compensation 
+            claims.forEach(claim => {
+                fetch(`/api/compensations/${claim.claimId}`)
+                    .then(response => response.json())
+                    .then(compensation => {
+                        if (compensation) {
+                            document.getElementById(`comp-${claim.claimId}`).textContent = 
+                                `฿ ${compensation.compensationAmount.toLocaleString('th-TH')}`;
+                        }
+                    })
+                    .catch(error => console.error('Error loading compensation:', error));
+            });
+        }
+
+        function displayCompensationSummary(claims, allCompensations, claimant) {
+            if (!claims || claims.length === 0) {
+                document.getElementById('compensationSummaryContainer').innerHTML = 
+                    '<p style="color: #7f8c8d; text-align: center;">ไม่พบข้อมูลการเยียวยา</p>';
+                return;
+            }
+            
+            let totalCompensation = 0;
+            let approvedCount = 0;
+            
+            claims.forEach(claim => {
+                const compensation = allCompensations.find(c => c.claimId === claim.claimId);
+                if (compensation) {
+                    totalCompensation += compensation.compensationAmount;
+                    if (claim.claimStatus === 'approved') {
+                        approvedCount++;
+                    }
+                }
+            });
+            
+            document.getElementById('compensationSummaryContainer').innerHTML = `
+                <div class="feature-card" style="background-color: #ecf0f1;">
+                    <p><strong>จำนวนคำขอทั้งหมด:</strong> ${claims.length}</p>
+                    <p><strong>จำนวนคำขออนุมัติ:</strong> ${approvedCount}</p>
+                    <p><strong>เงินเยียวยารวม:</strong> <span style="font-size: 1.2rem; color: #27ae60; font-weight: bold;">฿ ${totalCompensation.toLocaleString('th-TH')}</span></p>
+                </div>
+            `;
+        }
+
+        function translateClaimStatus(status) {
+            const statuses = {
+                'pending': 'รอการตรวจสอบ',
+                'approved': 'อนุมัติ',
+                'rejected': 'ไม่อนุมัติ'
+            };
+            return statuses[status] || status;
+        }
+
+        function showNewClaimForm() {
+            displayClaimForm();
+            showStep('step3-claim');
+        }
+
+        function registerNewClaimant() {
+            const nationalId = document.getElementById('nationalId').value.trim();
+            const firstName = document.getElementById('regFirstName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const dateOfBirth = document.getElementById('regDOB').value;
+            const monthlyIncome = parseInt(document.getElementById('regIncome').value);
+
+            if (!firstName || !lastName || !dateOfBirth || !monthlyIncome) {
+                showError('registerError', 'กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            fetch('/api/claimants/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nationalId,
+                    firstName,
+                    lastName,
+                    dateOfBirth,
+                    monthlyIncome
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentClaimant = data.data;
+                    displayClaimForm();
+                    showStep('step3-claim');
+                } else {
+                    showError('registerError', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('registerError', 'เกิดข้อผิดพลาดในการลงทะเบียน');
+            });
+        }
+
+        function displayClaimForm() {
+            document.getElementById('claimantName').textContent = currentClaimant.firstName;
+            document.getElementById('claimantLastName').textContent = currentClaimant.lastName;
+            document.getElementById('claimantIncome').textContent = currentClaimant.monthlyIncome.toLocaleString('th-TH');
+            document.getElementById('claimantType').textContent = translateClaimantType(currentClaimant.claimantType);
+            setTodayDate();
+        }
+
+        function goBackSearch() {
+            document.getElementById('nationalId').disabled = false;
+            document.getElementById('nationalId').value = '';
+            document.getElementById('regFirstName').value = '';
+            document.getElementById('regLastName').value = '';
+            document.getElementById('regDOB').value = '';
+            document.getElementById('regIncome').value = '';
+            showStep('step1-search');
+            clearErrors();
+        }
+
+        function showStep(stepId) {
+            document.getElementById('step1-search').style.display = stepId === 'step1-search' ? 'block' : 'none';
+            document.getElementById('step2-existing').style.display = stepId === 'step2-existing' ? 'block' : 'none';
+            document.getElementById('step2-register').style.display = stepId === 'step2-register' ? 'block' : 'none';
+            document.getElementById('compensationForm').style.display = stepId === 'step3-claim' ? 'block' : 'none';
+            
+            if (stepId === 'step3-claim') {
+                displayClaimForm();
+            }
+        }
+
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        function clearErrors() {
+            document.getElementById('searchError').style.display = 'none';
+            document.getElementById('registerError').style.display = 'none';
+        }
+
+        function translateClaimantType(type) {
+            const types = {
+                'general': 'ทั่วไป',
+                'low-income': 'รายได้น้อย',
+                'high-income': 'รายได้สูง'
+            };
+            return types[type] || type;
+        }
+
+        document.getElementById('compensationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!currentClaimant) {
+                alert('ไม่พบข้อมูลผู้ขอเยียวยา');
+                return;
+            }
+
+            const submissionDate = document.getElementById('submissionDate').value;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'กำลังส่งข้อมูล...';
+
+            fetch('/api/claims', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    claimantId: currentClaimant.claimantId,
+                    submissionDate: submissionDate,
+                    claimStatus: 'pending'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const claimId = data.claimId;
+                    document.getElementById('newClaimId').textContent = claimId;
+                    // cal compensation
+                    return fetch('/api/compensations/calculate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            claimantId: currentClaimant.claimantId,
+                            claimId: claimId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(compensationData => {
+                        if (compensationData.success || (compensationData.claimId && compensationData.compensationAmount)) {
+                            document.getElementById('successMsg').style.display = 'block';
+                            document.getElementById('compensationForm').style.display = 'none';
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'ยื่นคำขอเยียวยา';
+                        } else {
+                            alert('เกิดข้อผิดพลาดในการคำนวณเงินเยียวยา: ' + compensationData.error);
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'ยื่นคำขอเยียวยา';
+                        }
+                    });
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'ยื่นคำขอเยียวยา';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'ยื่นคำขอเยียวยา';
+            });
+        });
+    </script>
+</body>
+</html>

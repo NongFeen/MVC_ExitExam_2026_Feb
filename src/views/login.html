@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - ระบบการเยียวยา</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <main style="display: flex; justify-content: center; align-items: center; min-height: 100vh; margin-top: -80px;">
+        <div class="feature-card" style="max-width: 400px; width: 90%;">
+            <h1 style="text-align: center; color: #2ecc71; margin-bottom: 2rem;">เข้าสู่ระบบ</h1>
+
+            <form id="loginForm">
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="username" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Username</label>
+                    <input type="text" id="username" name="username" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <div id="usernameError" style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;"></div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="password" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Password</label>
+                    <input type="password" id="password" name="password" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <div id="passwordError" style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;"></div>
+                </div>
+
+                <button type="submit" id="submitBtn" style="width: 100%; padding: 0.75rem 2rem; background-color: #2ecc71; color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer;">เข้าสู่ระบบ</button>
+            </form>
+
+            <div id="errorMsg" style="display: none; background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; border-radius: 4px; margin-top: 1.5rem;"></div>
+
+            <div style="margin-top: 2rem; padding: 1rem; background-color: #f9f9f9; border-radius: 4px; font-size: 0.9rem;">
+                <p style="margin: 0 0 0.5rem 0;"><strong>admin account for test</strong></p>
+                <p style="margin: 0.25rem 0;">
+                    Username: <code>admin</code><br>
+                    Password: <code>admin</code>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            document.getElementById('usernameError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            document.getElementById('errorMsg').style.display = 'none';
+
+            if (!username || !password) {
+                alert('กรุณากรอก username และ password');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'กำลังเข้าสู่ระบบ...';
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`ยินดีต้อนรับ ${data.user.name}!`);
+                    
+                    if (data.user.role === 'admin') {
+                        window.location.href = '/compensationRequestList';
+                    } else {
+                        window.location.href = '/compensationRequest';
+                    }
+                } else {
+                    document.getElementById('errorMsg').textContent = data.message;
+                    document.getElementById('errorMsg').style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'เข้าสู่ระบบ';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('errorMsg').textContent = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
+                document.getElementById('errorMsg').style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'เข้าสู่ระบบ';
+            });
+        });
+    </script>
+</body>
+</html>

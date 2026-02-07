@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบการเยียวยา - หน้าแรก</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    
+</head>
+<body>
+    <nav>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <ul style="margin: 0;">
+                <li><a href="/" class="active">หน้าแรก</a></li>
+            </ul>
+            <div class="user-info" id="userInfo">
+                <span class="user-name" id="userName">Loading...</span>
+                <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+            </div>
+            <button class="login-btn" id="loginBtn" onclick="goToLogin()" style="display: none;">เข้าสู่ระบบ</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="title">
+            <h1>ระบบการเยียวยา</h1>
+            <p>ยินดีต้อนรับเข้าสู่ระบบจัดการคำขอเยียวยา</p>
+        </div>
+
+        <div class="features" id="featureContainer">
+            <a href="/compensationRequest" style="text-decoration: none;">
+                <div class="feature-card">
+                    <h2>ยื่นคำขอเยียวยา</h2>
+                    <p>สร้างคำขอเยียวยาใหม่และดูจำนวนเงินเยียวยาที่คำนวณได้</p>
+                </div>
+            </a>
+            <a href="/compensationRequestList" style="text-decoration: none;">
+                <div class="feature-card">
+                    <h2>รายการคำขอเยียวยา</h2>
+                    <p>ดูและจัดการคำขอเยียวยาทั้งหมด พร้อมตรวจสอบสถานะและเงินเยียวยา</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+        });
+
+        // Load current user
+        function loadCurrentUser() {
+            fetch('/api/auth/current')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('userInfo').classList.add('logged-in');
+                        document.getElementById('userName').textContent = `ผู้ใช้: ${data.user.name}`;
+                        document.getElementById('loginBtn').style.display = 'none';
+                    } else {
+                        document.getElementById('loginBtn').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading current user:', error);
+                    document.getElementById('loginBtn').style.display = 'block';
+                });
+        }
+
+        // Go to login
+        function goToLogin() {
+            window.location.href = '/login';
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                fetch('/api/auth/logout', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.href = '/';
+                });
+            }
+        }
+    </script>
+</body>
+</html>

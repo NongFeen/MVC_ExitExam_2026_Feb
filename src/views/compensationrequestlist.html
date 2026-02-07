@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการคำขอเยียวยา - ระบบการเยียวยา</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    
+</head>
+<body>
+    <nav>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <ul style="margin: 0;">
+                <li><a href="/home">หน้าแรก</a></li>
+            </ul>
+            <div class="user-info">
+                <span class="user-name" id="userName">Loading...</span>
+                <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="title">
+            <h1>รายการคำขอเยียวยา</h1>
+            <p>แสดงคำขอเยียวยาทั้งหมดและสถานะปัจจุบัน</p>
+        </div>
+
+        <div>
+            <div style="background-color: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <label for="statusFilter" style="font-weight: bold; margin-right: 1rem;">กรองตามสถานะ:</label>
+                <select id="statusFilter" onchange="filterClaims()" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <option value="">-- ทั้งหมด --</option>
+                    <option value="pending">รอพิจารณา</option>
+                    <option value="approved">อนุมัติแล้ว</option>
+                    <option value="rejected">ปฏิเสธ</option>
+                    <option value="completed">สำเร็จแล้ว</option>
+                </select>
+            </div>
+
+            <div id="loadingSpinner" style="text-align: center; padding: 2rem; color: #999; display: none;">
+                <div style="display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #2ecc71; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p>กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <table class="table" id="claimsTable" style="display: none; width: 100%;">
+                <thead>
+                    <tr>
+                        <th>รหัสคำขอ</th>
+                        <th>ผู้ขอเยียวยา</th>
+                        <th>วันที่ยื่นคำขอ</th>
+                        <th>สถานะ</th>
+                        <th>เงินเยียวยา</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="claimsTableBody">
+                </tbody>
+            </table>
+
+            <div id="emptyState" style="text-align: center; padding: 3rem 1rem;">
+                <h2 style="color: #999; margin-bottom: 1rem;">ไม่พบรายการคำขอเยียวยา</h2>
+                <p style="color: #bbb; margin-bottom: 1.5rem;">กรุณายื่นคำขอเยียวยาใหม่เพื่อเริ่มต้น</p>
+                <a href="/compensationRequest" style="background-color: #2ecc71; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; transition: background-color 0.3s;">ยื่นคำขอเยียวยา</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Update Status -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">แก้ไขสถานะคำขอ</div>
+            <div class="modal-body">
+                <p><strong>รหัสคำขอ:</strong> <span id="modalClaimId"></span></p>
+                <p><strong>สถานะปัจจุบัน:</strong> <span id="modalCurrentStatus"></span></p>
+                <div style="margin-top: 1rem;">
+                    <label for="newStatus">สถานะใหม่ *</label>
+                    <select id="newStatus" required>
+                        <option value="">-- เลือกสถานะ --</option>
+                        <option value="pending">รอพิจารณา</option>
+                        <option value="approved">อนุมัติแล้ว</option>
+                        <option value="rejected">ปฏิเสธ</option>
+                        <option value="completed">สำเร็จแล้ว</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" onclick="closeStatusModal()">ยกเลิก</button>
+                <button class="modal-btn modal-btn-primary" onclick="saveStatusUpdate()">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        let allClaims = [];
+        let allCompensations = [];
+        let claimantsMap = {};
+
+        // loadpage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            loadClaimants();
+            loadCompensations();
+            loadClaims();
+        });
+
+        // Load current user
+        function loadCurrentUser() {
+            fetch('/api/auth/current')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('userName').textContent = `ผู้ใช้: ${data.user.name}`;
+                    }
+                })
+                .catch(error => console.error('Error loading current user:', error));
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                fetch('/api/auth/logout', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.href = '/login';
+                });
+            }
+        }
+
+        function loadClaimants() {
+            fetch('/api/claimants')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(claimant => {
+                        claimantsMap[claimant.claimantId] = claimant;
+                    });
+                })
+                .catch(error => console.error('Error loading claimants:', error));
+        }
+
+        function loadClaims() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('claimsTable').style.display = 'none';
+
+            fetch('/api/claims')
+                .then(response => response.json())
+                .then(data => {
+                    allClaims = data;
+                    renderClaims(allClaims);
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading claims:', error);
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    alert('ไม่สามารถโหลดข้อมูลคำขอ');
+                });
+        }
+
+        function loadCompensations() {
+            fetch('/api/compensations')
+                .then(response => response.json())
+                .then(data => {
+                    allCompensations = data;
+                })
+                .catch(error => console.error('Error loading compensations:', error));
+        }
+
+        function filterClaims() {
+            const status = document.getElementById('statusFilter').value;
+            const filtered = status ? allClaims.filter(claim => claim.claimStatus === status) : allClaims;
+            renderClaims(filtered);
+        }
+
+        function renderClaims(claims) {
+            const tbody = document.getElementById('claimsTableBody');
+            const table = document.getElementById('claimsTable');
+            const emptyState = document.getElementById('emptyState');
+
+            if (claims.length === 0) {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            claims.forEach(claim => {
+                const claimant = claimantsMap[claim.claimantId];
+                const compensation = allCompensations.find(c => c.claimId === claim.claimId);
+
+                let statusColor = '#f3f3f3';
+                let statusTextColor = '#333';
+                if (claim.claimStatus === 'pending') {
+                    statusColor = '#fff3cd';
+                    statusTextColor = '#856404';
+                } else if (claim.claimStatus === 'approved') {
+                    statusColor = '#d4edda';
+                    statusTextColor = '#155724';
+                } else if (claim.claimStatus === 'rejected') {
+                    statusColor = '#f8d7da';
+                    statusTextColor = '#721c24';
+                } else if (claim.claimStatus === 'completed') {
+                    statusColor = '#d1ecf1';
+                    statusTextColor = '#0c5460';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${claim.claimId}</strong></td>
+                    <td>${claimant ? claimant.firstName + ' ' + claimant.lastName : 'ไม่พบข้อมูล'}</td>
+                    <td>${formatDate(claim.submissionDate)}</td>
+                    <td>
+                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold; text-align: center; background-color: ${statusColor}; color: ${statusTextColor};">
+                            ${translateStatus(claim.claimStatus)}
+                        </span>
+                    </td>
+                    <td>${compensation ? '฿ ' + compensation.compensationAmount.toLocaleString('th-TH') : '-'}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button style="padding: 0.5rem 1rem; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; text-decoration: none; display: inline-block; background-color: #3498db; color: white;" onclick="viewClaim('${claim.claimId}')">ดูรายละเอียด</button>
+                            <button style="padding: 0.5rem 1rem; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; text-decoration: none; display: inline-block; background-color: #f39c12; color: white;" onclick="openStatusModal('${claim.claimId}', '${claim.claimStatus}')">แก้ไขสถานะ</button>
+                            <button style="padding: 0.5rem 1rem; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; text-decoration: none; display: inline-block; background-color: #e74c3c; color: white;" onclick="deleteClaim('${claim.claimId}')">ลบ</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            table.style.display = 'table';
+            emptyState.style.display = 'none';
+        }
+
+        // veiw details
+        function viewClaim(claimId) {
+            const claim = allClaims.find(c => c.claimId === claimId);
+            const claimant = claimantsMap[claim.claimantId];
+            const compensation = allCompensations.find(c => c.claimId === claimId);
+
+            const details = `
+            รหัสคำขอ: ${claim.claimId}
+            ผู้ขอเยียวยา: ${claimant.firstName} ${claimant.lastName}
+            รายได้ต่อเดือน: ฿ ${claimant.monthlyIncome.toLocaleString('th-TH')}
+            ประเภท: ${translateClaimantType(claimant.claimantType)}
+            วันที่ยื่นคำขอ: ${formatDate(claim.submissionDate)}
+            สถานะ: ${translateStatus(claim.claimStatus)}
+            ${compensation ? `เงินเยียวยา: ฿ ${compensation.compensationAmount.toLocaleString('th-TH')}\nวันที่คำนวณ: ${formatDate(compensation.calculationDate)}` : 'ยังไม่มีการคำนวณเงินเยียวยา'}
+            `;
+            alert(details);
+        }
+
+        // del claim
+        function deleteClaim(claimId) {
+            if (!confirm('คุณแน่ใจหรือว่าต้องการลบคำขอนี้?')) {
+                return;
+            }
+
+            fetch(`/api/claims/${claimId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('ลบคำขอสำเร็จ');
+                    loadClaims();
+                } else {
+                    alert('ไม่สามารถลบคำขอ');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการลบ');
+            });
+        }
+
+        function translateStatus(status) {
+            const statuses = {
+                'pending': 'รอพิจารณา',
+                'approved': 'อนุมัติแล้ว',
+                'rejected': 'ปฏิเสธ',
+                'completed': 'สำเร็จแล้ว'
+            };
+            return statuses[status] || status;
+        }
+
+        function translateClaimantType(type) {
+            const types = {
+                'general': 'ทั่วไป',
+                'low-income': 'รายได้น้อย',
+                'high-income': 'รายได้สูง'
+            };
+            return types[type] || type;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function openStatusModal(claimId, currentStatus) {
+            document.getElementById('modalClaimId').textContent = claimId;
+            document.getElementById('modalCurrentStatus').textContent = translateStatus(currentStatus);
+            document.getElementById('newStatus').value = '';
+            document.getElementById('statusModal').style.display = 'block';
+            
+            window.currentClaimIdToUpdate = claimId;
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').style.display = 'none';
+            window.currentClaimIdToUpdate = null;
+        }
+
+        function saveStatusUpdate() {
+            const newStatus = document.getElementById('newStatus').value;
+            
+            if (!newStatus) {
+                alert('กรุณาเลือกสถานะใหม่');
+                return;
+            }
+            
+            const claimId = window.currentClaimIdToUpdate;
+            
+            fetch(`/api/claims/${claimId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    claimStatus: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('อัปเดตสถานะสำเร็จ');
+                    closeStatusModal();
+                    loadClaims();
+                } else {
+                    alert('ไม่สามารถอัปเดตสถานะ: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการอัปเดต');
+            });
+        }
+
+        // close when click outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('statusModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

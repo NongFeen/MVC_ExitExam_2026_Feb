@@ -1,0 +1,22 @@
+[
+  {
+    "claimId": "70348425",
+    "compensationAmount": 6500,
+    "calculationDate": "2026-02-07"
+  },
+  {
+    "claimId": "50778384",
+    "compensationAmount": 20000,
+    "calculationDate": "2026-02-07"
+  },
+  {
+    "claimId": "61496930",
+    "compensationAmount": 15000,
+    "calculationDate": "2026-02-07"
+  },
+  {
+    "claimId": "92661592",
+    "compensationAmount": 6500,
+    "calculationDate": "2026-02-07"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "claimantId": "CLM001",
+    "nationalId": "1104300580399",
+    "firstName": "ฟีน",
+    "lastName": "ฟีน",
+    "dateOfBirth": "2026-02-01",
+    "monthlyIncome": 5000,
+    "claimantType": "low-income"
+  },
+  {
+    "claimantId": "CLM002",
+    "nationalId": "9275455861672",
+    "firstName": "โก้",
+    "lastName": "โก",
+    "dateOfBirth": "2016-01-02",
+    "monthlyIncome": 150000,
+    "claimantType": "high-income"
+  },
+  {
+    "claimantId": "CLM003",
+    "nationalId": "1122336640845",
+    "firstName": "ต้น",
+    "lastName": "ไดเกียว",
+    "dateOfBirth": "1998-05-07",
+    "monthlyIncome": 15000,
+    "claimantType": "general"
+  }
+]
