@@ -120,39 +120,6 @@ const registerNewClaimant = (req, res) => {
 };
 
 //crud 
-const addClaimant = (req, res) => {
-  try {
-    const { claimantId, firstName, lastName, monthlyIncome, claimantType } = req.body;
-    
-    if (!claimantId || !firstName || !lastName || !monthlyIncome || !claimantType) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Data is not complete" 
-      });
-    }
-
-    const newClaimant = {
-      claimantId,
-      firstName,
-      lastName,
-      monthlyIncome,
-      claimantType
-    };
-    MoneyModel.addClaimant(newClaimant);
-
-    res.json({ 
-      success: true, 
-      message: "Add claimant completed",
-      data: newClaimant 
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Error adding claimant",
-      error: error.message 
-    });
-  }
-};
 
 const updateClaimant = (req, res) => {
   try {
@@ -205,7 +172,6 @@ module.exports = {
   getClaimantById,
   searchClaimantByNationalId,
   registerNewClaimant,
-  addClaimant,
   updateClaimant,
   deleteClaimant,
 };

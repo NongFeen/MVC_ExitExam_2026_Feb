@@ -9,7 +9,6 @@ router.get("/claimants", claimantsController.getAllClaimants);
 router.post("/claimants/register", claimantsController.registerNewClaimant);
 router.get("/claimants/search/:nationalId", claimantsController.searchClaimantByNationalId);
 router.get("/claimants/:id", claimantsController.getClaimantById);
-router.post("/claimants", claimantsController.addClaimant);
 router.put("/claimants/:id", claimantsController.updateClaimant);
 router.delete("/claimants/:id", claimantsController.deleteClaimant);
 
