@@ -55,7 +55,7 @@ app.get("/compensationRequestList", (req, res) => {
   if (!req.session.loggedIn) {
     return res.redirect("/login");
   }
-  if (req.session.user.role !== "admin") {
+  if (req.session.user.role !== "admin" && !isAdmin(req.session.user)) {
     return res.status(403).send(
       "<h1>Access Denied</h1><p>Only Admin can access this page.</p><a href='/home'>Back to Home</a>"
     );
