@@ -1,5 +1,3 @@
-Models
-
 ไฟล์ JSON
     - UsersData.json: ข้อมูล admin สำหรับ Login เพื่อเข้าดูรายการ
     - ClaimantsData.json: ข้อมูลผู้ขอเยียวยา
@@ -7,6 +5,7 @@ Models
     - CompensationsData.json: เงินเยียวยาได้จ่ายออกไป
     - PoliciesData.json: นโยบายการเยียวยา
 
+Models
 MoneyModel.js (ตอนเริ่มทำคิดชื่อได้ไม่ดี)
     CRUD - จัดการข้อมูล Claimant,Compensations และ Policy  
 
@@ -63,7 +62,3 @@ Views html แสดงผลหน้าต่างๆ
     - compensationrequestlist.html
         เป็นหน้าที่มีสิทธิ Admin ถึงจะเข้าถึงหน้านี้ได้
         แสดงรายการคำขอเยียวยาทั้งหมดและสามารถปรับเปลี่ยนสถานะของคำขอได้ PUT /api/claims/${claimId} รวมถึงการลบข้อมูล Delete /api/claims/${claimId}
-        
-    
-
-    
