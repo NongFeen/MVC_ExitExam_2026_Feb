@@ -1,0 +1,69 @@
+Models
+
+ไฟล์ JSON
+    - UsersData.json: ข้อมูล admin สำหรับ Login เพื่อเข้าดูรายการ
+    - ClaimantsData.json: ข้อมูลผู้ขอเยียวยา
+    - GeneralClaimsData.json, LowIncomeClaimsData.json, HighIncomeClaimsData.json: คำขอเยียวยาขอแต่ละระดับรายได้
+    - CompensationsData.json: เงินเยียวยาได้จ่ายออกไป
+    - PoliciesData.json: นโยบายการเยียวยา
+
+MoneyModel.js (ตอนเริ่มทำคิดชื่อได้ไม่ดี)
+    CRUD - จัดการข้อมูล Claimant,Compensations และ Policy  
+
+ClaimModel
+    - GeneralClaimModel.js, LowIncomeClaimModel.js, HighIncomeClaimModel.js
+    เป็นตัวจัดการเรื่องข้อมูลการ Claim ต่างๆ โดยแยกแต่ละระดับรายได้มี fucntion ที่คล้ายกันหลักๆ คือ
+    - addClaim ที่มีการสร้าง Id ที่มีเลข 8 หลัก ไม่ซ้ำกัน (หลังส่งแล้วพึ่งเห็นว่าลืมเช็คในไฟล์อื่นที่ไม่ใช่ของตัวเอง สามารถเลขซ้ำกับ Claimmodel อื่นได้)
+    ใน calculateCompensation จะมีความแตกต่างกันไปตามเกณฑ์ที่ได้ตั้งไว้สำหรับรายได้นั้นๆ
+        - General 
+            ใช้ Math.min(monthlyIncome, 20000) ทำให้รายได้ตามจำนวนเงินเดือนไม่เกิน 20000
+        - LowIncome 
+            เป็นแบบ Fixed 6500
+        - HighIncome 
+            ใช้ Math.min(Math.floor(monthlyIncome / 5), 20000) ทำให้ได้เงินชดเชยอย่างน้อยสุด 20000 หรือได้เป็น 1/5 ของเงินเดือน
+AuthModel
+    ใช้ตรวจสอบการ login ซึ่งใช้ authenticateUser ในการหา username และ password เทียบว่ามีหรือไม่
+
+Controller เป็นตัวเชื่อมสั่งใช้งาน Model
+    authController 
+        - Login ใช้สำหรับการ login ให้ server check ว่าข้อมูลที่ใช้ login เข้ามานั้นตรงไหม ถ้าตรงก็จะเก็บข้อมูลใน session ใช้ตรวจสอบใน request ต่อ ๆ ไปว่า login หรือไม่
+        - Logout ลบ session ออก
+        - getCurrentUser ใช้ตรวจว่า login อยู่หรือไม่
+    
+    claimantsController สำหรับผู้สมัครขอเงินเยียวยา
+        - searchClaimantByNationalId เป็นการหาข้อมูลโดยการใช้เลขบัตรประชาชน 
+        - registerNewClaimant มีการตรวจสอบระดับรายได้เพื่อกำหนดระดับผู้ขอเงินเยียวยา เพื่อนำไปแยกสั่ง Model อีกที
+
+    claimsController เป็นตัวจัดการการสร้างคำขอ
+        - getClaimModel แปลง string เพื่อให้เลือก model ให้ตรงระดับรายได้
+        - addClaim เพิ่มคำขอโดยดูจากสถานะของรายได้
+
+    compensationsController เป็นตัวจัดการรายการที่จ่ายออก
+        - calculateCompensation บอก model ให้คำนวณเงินเยียวยาและบอกให้ผู้ยื่นได้รับรู้
+
+Middleware
+    auth ใช้สำหรับบอกว่าใครมีสิทธิในการเข้าถึงในหน้าต่างๆ
+        - isAdmin สำหรับ admin 
+
+Routes 
+    บอก API ต่างๆเพื่อให้สามารถเรียกใช้ Controller ได้ 
+
+server.js 
+    บอกเส้นทางที่ผู้ใช้สามารถเข้าถึงได้โดยส่ง html กลับ
+    โดยหน้า /compensationRequestList จะถูกตรวจสอบการ login ก่อน
+    app.listen บอก port ที่เข้าใช้งาน
+
+Views html แสดงผลหน้าต่างๆ
+    - index.html ไม่ถูกใช้งาน
+    - home.html เป็นหน้าหลักสำหรับการเข้าใช้เว็บ มี 2 ปุ่มไปหน้ายื่นขอคำร้องและแสดงรายการคำร้อง
+    - compensationrequest.html 
+        เป็นหน้าการยืนคำขอเยียวยา ให้กรอกบัตรประชาชน โดยมีการ Validate ผ่าน browser
+        หากไม่มีเลขบัตรที่ตรงกับฐานข้อมูลจะเข้าสู่ขั้นตอนการสมัคร ซึ่งให้กรอกข้อมูลพื้นฐานต่างๆ
+        เมื่อสมัครแล้วจะเรียก api/claimants/regismpensationController.js ถูกแยกออกเป็นสามไฟล์ย่อยเพื่อตามหลัก Single Responsibility (แยก claimants, policies, compensations) แลter เพื่อสมัครข้อมูลผู้ร้องขอ หากสมัครส    หากจะยื่นคำขอเพิ่มจะใช้ POST /api/claims ส่งคำขอใหม่
+    - compensationrequestlist.html
+        เป็นหน้าที่มีสิทธิ Admin ถึงจะเข้าถึงหน้านี้ได้
+        แสดงรายการคำขอเยียวยาทั้งหมดและสามารถปรับเปลี่ยนสถานะของคำขอได้ PUT /api/claims/${claimId} รวมถึงการลบข้อมูล Delete /api/claims/${claimId}
+        
+    
+
+    

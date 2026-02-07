@@ -8,7 +8,6 @@ const { isAdmin } = require("./middleware/auth");
 
 const app = express();
 
-// Session middleware
 app.use(
   session({
     secret: "your-secret-key-change-this",
@@ -22,15 +21,12 @@ app.use("/css", express.static(path.join(__dirname, "views/css"))); //css
 
 app.use(express.json());
 
-//==================== AUTH ROUTES ====================
 app.post("/api/auth/login", authController.login);
 app.post("/api/auth/logout", authController.logout);
 app.get("/api/auth/current", authController.getCurrentUser);
 
-//==================== API ROUTES ====================
 app.use("/api", jobFairRoutes);
 
-//==================== PAGE ROUTES ====================
 app.get("/login", (req, res) => {
   if (req.session.loggedIn) {
     return res.redirect("/home");

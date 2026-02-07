@@ -25,5 +25,14 @@
     "dateOfBirth": "1998-05-07",
     "monthlyIncome": 15000,
     "claimantType": "general"
+  },
+  {
+    "claimantId": "CLM004",
+    "nationalId": "2187347791567",
+    "firstName": "ต้น",
+    "lastName": "สมดี",
+    "dateOfBirth": "2025-12-31",
+    "monthlyIncome": 13456,
+    "claimantType": "general"
   }
 ]
